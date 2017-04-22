@@ -22,6 +22,16 @@ module.exports = {
       type : 'integer'
     },
 
+    date : {
+      type : 'string'
+    },
+
+    time : {
+      type  : 'string'
+    },
+
+
+
 
     encryptedPassword: {
       type: 'string'

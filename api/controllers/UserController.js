@@ -1,4 +1,6 @@
 module.exports = {
+
+
   'new' : function (req, res) {
      res.view();
 
@@ -12,11 +14,11 @@ module.exports = {
 
     User.create(req.params.all(), function userCreated(err, user) {
       if (err) {
-        //console.log(err);
-        req.session.flash = {
-          err: err
-        };
-        return res.redirect('/user/new');
+        console.log(err);
+        return res.status(200).json({
+          message : "Username or email address already exist.Please use different values",
+          success : false
+       })
       }
 
       req.session.authenticated = true;
@@ -24,19 +26,23 @@ module.exports = {
 
 
 
-
-      res.redirect('/user/showall');
+      return res.redirect('/user/showall');
+      // return res.json({
+      //   message : "Successfully registered",
+      //   success  :true,
+      //   user  : user
+      // })
 
     });
   },
 
   show: function(req, res, next) {
-    User.findOne(req.param('id'), function foundUser(err, user) {
+    User.findOne(req.header('id'), function foundUser(err, user) {
       if (err) return next(err);
       if (!user) return next();
-      res.view({
-        user: user
-      });
+      return res.status(200).json({
+        user : user
+      })
     });
   },
 

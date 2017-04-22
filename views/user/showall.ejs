@@ -1,3 +1,6 @@
+<a href="/request/showrequest">View Requests</a>
+
+<br><br>
 <% _.each(users, function(user) { %>
 <tr data-id="<%= user.id %>" data-model="user">
 
@@ -6,20 +9,26 @@
   <td><%= user.name %></td><br>
   <td><%= user.phone %></td><br>
   <td><%= user.email %></td><br>
+  <td><%= user.date %></td><br>
+  <td><%= user.time %></td><br>
+
+
 
   <form action="/request/create" method="post" class="form-signin">
-    <input name="sender" type="text" value="<%= user.id %>">
-    <input name="reciever" type="text" value="<%= session.User.id %>">
-    <input name="name" type="text" value="<%= session.User.name %>">
-    <input name="phone" type="number" value="<%= session.User.phone %>">
-    <input name="email" type="text" value="<%= session.User.email %>">
+    <input name="sender" type="hidden" value="<%= user.id %>">
+    <input name="reciever" type="hidden" value="<%= session.User.id %>">
+    <input name="name" type="hidden" value="<%= session.User.name %>">
+    <input name="phone" type="hidden" value="<%= session.User.phone %>">
+    <input name="email" type="hidden" value="<%= session.User.email %>">
+    <input name="date" type="hidden" value="<%= session.User.date %>">
+    <input name="time" type="hidden" value="<%= session.User.time %>">
 
 
     <button class="btn btn-logout waves-effect waves-light">Send Request</button><br>
   </form>
 
   <br>
-  <% } %>
+  <% }  %>
 
 <% }) %>
 

@@ -1,13 +1,19 @@
-<h1>Thankyou for Sending request! You will get reply soon</h1>
+
+
 <% _.each(requests, function(request) { %>
 <tr data-id="<%= request.id %>" data-model="request">
 
 
 <% if(session.User.id == request.sender) { %>
-    <%= request.reciever %><br>
+  <h1>You got a new request</h1>
+    <!--<%= request.reciever %><br>-->
     <%= request.name %><br>
     <%= request.email %><br>
     <%= request.phone %><br>
+  <%= request.date %><br>
+  <%= request.time %><br>
+
+
   <form action="/request/destroy_request/<%= request.id %>" method="POST">
     <input type="hidden" name="_method" value="delete"/>
     <input type="submit" class="btn btn-delete waves-effect waves-light" value="Delete"/>
@@ -16,6 +22,7 @@
 
 
   <% } %>
+
 
 
 

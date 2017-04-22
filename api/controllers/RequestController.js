@@ -52,10 +52,18 @@ module.exports = {
 
         return res.redirect('/request/new');
       }
-      res.redirect('/request/showrequest/' );
+      SendRequest.sendRequestMail(request);
+
+      return res.redirect('/request/message' );
 
     });
   },
+
+  'message' : function (req, res) {
+    res.view();
+  },
+
+
 
   send: function(req, res, next) {
     console.log(req.param('id'));
@@ -65,7 +73,7 @@ module.exports = {
       console.log(request);
       if (!request) return next();
       res.view({
-        request: request,
+        request: request
 
       });
     });
@@ -79,6 +87,10 @@ module.exports = {
         requests: requests
       });
     });
+  },
+
+  accetpRequest : function (req, res, next) {
+
   },
 
   destroy_request: function(req, res, next) {

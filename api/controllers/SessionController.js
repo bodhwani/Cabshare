@@ -41,27 +41,29 @@ module.exports = {
       req.session.User = user;
 
 
-      res.redirect('/user/showall');
+      return res.redirect('/user/showall');
 
-      bcrypt.compare(req.param('password'), user.encryptedPassword, function(err, valid) {
-
-        if (err) return next(err);
-
-        // If the password from the form doesn't match the password from the database...
-        if (!valid) {
-          var usernamePasswordMismatchError = [{
-            name: 'usernamePasswordMismatch',
-            message: 'Invalid username and password combination.'
-          }]
-          req.session.flash = {
-            err3 : usernamePasswordMismatchError
-          }
-          res.redirect('/session/new');
-          return;
-        }
-
-
-      });
+      // bcrypt.compare(req.param('password'), user.encryptedPassword, function(err, valid) {
+      //
+      //   if (err) return next(err);
+      //
+      //   // If the password from the form doesn't match the password from the database...
+      //   if (!valid) {
+      //     var usernamePasswordMismatchError = [{
+      //       name: 'usernamePasswordMismatch',
+      //       message: 'Invalid username and password combination.'
+      //     }]
+      //     req.session.flash = {
+      //       err3 : usernamePasswordMismatchError
+      //     }
+      //     res.redirect('/session/new');
+      //     return;
+      //   }
+      //
+      //
+      //
+      //
+      // });
 
     });
 

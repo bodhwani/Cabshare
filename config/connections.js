@@ -28,9 +28,15 @@ module.exports.connections = {
   * Installed by default.                                                    *
   *                                                                          *
   ***************************************************************************/
-  localDiskDb: {
-    adapter: 'sails-disk'
-  },
+  // localDiskDb: {
+  //   adapter: 'sails-disk'
+  // },
+
+  mongodb: {
+    adapter: 'sails-mongo',
+    url: "mongodb://tempuser:tempuser@ds111771.mlab.com:11771/cabshare"
+
+  }
 
   /***************************************************************************
   *                                                                          *
