@@ -14,27 +14,29 @@ module.exports = {
 
     User.create(req.params.all(), function userCreated(err, user) {
       if (err) {
-        console.log(err);
-        return res.status(200).json({
-          message : "Username or email address already exist.Please use different values",
-          success : false
-       })
+        //console.log(err);
+        req.session.flash = {
+          err: err
+        };
+        return res.status(200).json(err);
       }
 
       req.session.authenticated = true;
       req.session.User = user;
-
-
-
-      return res.redirect('/user/showall');
-      // return res.json({
-      //   message : "Successfully registered",
-      //   success  :true,
-      //   user  : user
-      // })
-
+      user.token = sailsTokenAuth.issueToken(user.id);
+      user.save(function (err) {
+        if(err){
+          return res.state(200).json(err);
+        }
+        console.log("Saving user");
+        res.json({
+          user: user,
+          token: sailsTokenAuth.issueToken(user.id)
+        });
+      });
     });
   },
+
 
   show: function(req, res, next) {
     User.findOne(req.header('id'), function foundUser(err, user) {

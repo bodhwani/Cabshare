@@ -1,69 +1,125 @@
-
 var bcrypt = require('bcrypt');
 var senderid;
+
+// var bcrypt = require('bcrypt');
 module.exports = {
 
+  'welcome': function (req, res) {
+    return res.status(200).json({
+      user : 1
+    })
+  },
+
   'new': function (req, res) {
-    res.view('session/new');
+
+    res.view();
   },
 
   create: function (req, res, next) {
-    if (!req.param('email'))  {
-      var usernamePasswordRequiredError = [{
-        name: 'usernamePasswordRequired',
-        message: 'You must enter both a username and password.'
-      }];
 
+    if (!req.param('email') || !req.param('password')) {
       req.session.flash = {
-        err1: usernamePasswordRequiredError
+        err: 'You must enter both a username/email and password.'
       };
+      return res.status(200).json({
+        success : false,
+        err : "You must enter both a username/email and password"
+      });    }
 
-      res.redirect('/session/new');
-      return;
-    }
-    User.findOneByEmail(req.param('email'), function foundUser(err, user) {
-      if (err) return next(err);
+    User.findOne({
+      or : [
+        { username: req.param('email') },
+        { email: req.param('email') }
+      ]
+    }).exec(function(err, user) {
+
+      if (err){
+        req.session.flash = {
+          err: 'Error in logging'
+        };
+        return res.status(200).json({
+          success : false,
+          err : "Error in logging.Please fill details properly!"
+        });
+      }
+
 
       // If no user is found...
       if (!user) {
-        var noAccountError = [{
+        var noAccountError = {
           name: 'noAccount',
-          message: 'The email address ' + req.param('email') + ' not found.'
-        }];
-        req.session.flash = {
-          err2: noAccountError
+          message: 'The email address not found.'
         };
-        res.redirect('/session/new');
-        return;
+        // req.session.flash = {
+        //   err: 'The email address ' + req.param('email') + ' not found.'
+        // };
+        return res.status(200).json({
+          success : false,
+          err : "The email address not found"
+        });
+      }
+      else{
+
+        bcrypt.compare(req.param('password'), user.encryptedPassword, function (err, valid) {
+
+          if (err) return next(err);
+
+          // If the password from the form doesn't match the password from the database...
+          if (!valid) {
+            var usernamePasswordMismatchError = [{
+              name: 'usernamePasswordMismatch',
+              message: 'Invalid username and password combination.'
+            }];
+            req.session.flash = {
+              err: 'Invalid username and password combination.'
+            };
+            console.log(err);
+            return res.status(200).json({
+              success : false,
+              message : "Wrong credentials.Please check your email or password. "
+            });
+          }
+
+          req.session.authenticated = true;
+          req.session.User = user;
+
+          user.token = sailsTokenAuth.issueToken(user.id);
+
+          return res.status(200).json({
+            user : user,
+            token : sailsTokenAuth.issueToken(user.id),
+            success : true
+          })
+          // return res.json(
+          //   user: user,
+          //   token : jwToken.issue({id: user.id}
+          //   );
+          // res.redirect('/session/welcome');
+        });
       }
 
-      req.session.authenticated = true;
-      req.session.User = user;
+    });
+  },
 
+  checktoken : function (req, res, next) {
+    User.findOne({
+      id : req.header('id')
+    }, function foundUser(err, user) {
+      if (!user) {
+        console.log("Enters 4");
 
-      return res.redirect('/user/showall');
+        return res.status(200).json({
+          success : false,
+          err : "The email address not found"
+        });
+      }
+      else{
+        return res.status(200).json({
+          user : user,
+          success : true
+        })
 
-      // bcrypt.compare(req.param('password'), user.encryptedPassword, function(err, valid) {
-      //
-      //   if (err) return next(err);
-      //
-      //   // If the password from the form doesn't match the password from the database...
-      //   if (!valid) {
-      //     var usernamePasswordMismatchError = [{
-      //       name: 'usernamePasswordMismatch',
-      //       message: 'Invalid username and password combination.'
-      //     }]
-      //     req.session.flash = {
-      //       err3 : usernamePasswordMismatchError
-      //     }
-      //     res.redirect('/session/new');
-      //     return;
-      //   }
-      //
-      //
-      //
-      //
-      // });
+      }
 
     });
 
@@ -71,7 +127,6 @@ module.exports = {
 
 
   destroy: function (req, res, next) {
-    console.log('Entered into destroy');
 
     User.findOne(req.session.User.id, function foundUser(err, user) {
 
@@ -94,7 +149,6 @@ module.exports = {
 
           // Wipe out the session (log out)
           req.session.destroy();
-          console.log('session destroyed');
 
           // Redirect the browser to the sign-in screen
           res.redirect('/session/new');
@@ -103,7 +157,6 @@ module.exports = {
 
         // Wipe out the session (log out)
         req.session.destroy();
-        console.log('session destroyed');
 
         // Redirect the browser to the sign-in screen
         res.redirect('/session/new');

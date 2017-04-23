@@ -33,6 +33,10 @@ module.exports.policies = {
     'new' : "flash",
     create : "flash"
 
+  },
+
+  session : {
+    checktoken : 'tokenAuth'
   }
   /***************************************************************************
   *                                                                          *
