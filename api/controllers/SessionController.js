@@ -85,11 +85,19 @@ module.exports = {
 
           user.token = sailsTokenAuth.issueToken(user.id);
 
-          return res.status(200).json({
-            user : user,
-            token : sailsTokenAuth.issueToken(user.id),
-            success : true
-          })
+          user.save(function (err) {
+            if(err){
+              return res.state(200).json(err);
+            }
+            console.log("Saving user");
+            return res.status(200).json({
+              user : user,
+              token : sailsTokenAuth.issueToken(user.id),
+              success : true
+            })
+          });
+
+
           // return res.json(
           //   user: user,
           //   token : jwToken.issue({id: user.id}

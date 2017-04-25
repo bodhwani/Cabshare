@@ -1,9 +1,4 @@
-/**
- * Showrequest.js
- *
- * @description :: TODO: You might write a short summary of how this model works and what it represents here.
- * @docs        :: http://sailsjs.org/documentation/concepts/models-and-orm/models
- */
+
 
 var err1;
 
@@ -12,16 +7,17 @@ module.exports = {
   attributes: {
 
     sender : {
-      type : 'string'
+      type : 'string',
+      required : true
     },
 
     reciever : {
-      type : 'string'
+      type : 'string',
+      required  : true
     },
 
     name : {
       type : 'string',
-      required : true
     },
 
     email : {
@@ -33,6 +29,53 @@ module.exports = {
       type : 'integer'
     },
 
+    date : {
+      type : 'string'
+    },
+
+    time : {
+      type  : 'string'
+    }
+
+  },
+
+  beforeCreate: function (values, next) {
+    console.log("Values are");
+    console.log(values);
+
+    if(values.sender === values.reciever){
+      err = true;
+      return next(err);
+    }
+    User.findOne({
+      token : values.token
+    }, function foundUser(err, user) {
+      console.log(user);
+      Request.find({
+        sender : values.sender
+      }, function foundQuiz(err, requests) {
+        console.log("request is ");
+        console.log(requests);
+        console.log("before create in quiz");
+
+        requests.forEach(function (request) {
+          if (request) {
+            if(request.reciever === values.reciever){
+              err = true;
+            }
+          }
+
+        });
+        if(err){
+          return next(err);
+        }
+        else{
+          next();
+        }
+
+
+      });
+    });
   }
 
 

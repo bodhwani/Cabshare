@@ -30,6 +30,10 @@ module.exports = {
       type  : 'string'
     },
 
+    token : {
+      type : 'string'
+    },
+
     encryptedPassword: {
       type: 'string'
     },

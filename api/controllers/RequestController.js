@@ -4,43 +4,6 @@ module.exports = {
 
   create : function(req, res, next) {
 
-    // var params = req.params.all();
-    //
-    // Request.find({
-    //   or : [
-    //     { name:params.name },
-    //     { email:params.email }
-    //   ]
-    // })
-    //   .exec(function (err, requests){
-    //     if (err) {
-    //       return res.negotiate(err);
-    //     }
-    //     if (requests.length) {
-    //       res.status(400);
-    //       return res.json('Request already exists!');
-    //     } else {
-    //
-    //       Request.create(req.params.all(), function requestCreated(err, request) {
-    //
-    //         if (err) {
-    //           //console.log(err);
-    //           req.session.flash = {
-    //             err: err
-    //           };
-    //           console.log(err);
-    //
-    //           return res.redirect('/request/new');
-    //         }
-    //         res.redirect('/request/showrequest/' );
-    //
-    //       });
-    //
-    //
-    //
-    //     }
-    //   });
-
     Request.create(req.params.all(), function requestCreated(err, request) {
 
       if (err) {
@@ -50,17 +13,49 @@ module.exports = {
         };
         console.log(err);
 
-        return res.redirect('/request/new');
-      }
-      SendRequest.sendRequestMail(request);
+        if (err) {
+          return res.status(200).json({
+            success: true,
+            message: "Already send request"
+          })
+        }
 
-      return res.redirect('/request/message' );
+      }
+      //SendRequest.sendRequestMail(request);
+        User.findOne({
+          id: request.sender
+        }, function foundUser(err, user) {
+        if(!user){
+
+
+        }
+        request.name = user.name;
+        request.email = user.email;
+        request.phoneno = user.phone;
+        request.date = user.date;
+        request.time = user.time;
+
+        request.save(function(err){
+          if (err) {
+            return res.status(200).json({
+              success: true,
+              message: "Cannot create request.Please try again"
+            })
+          }
+          return res.redirect('/request/message' );
+
+        });
+
+        });
+
 
     });
   },
 
   'message' : function (req, res) {
-    res.view();
+    return res.status(200).json({
+      message : "Successfully send message"
+    })
   },
 
 
@@ -79,12 +74,37 @@ module.exports = {
     });
   },
 
-  showrequest : function(req, res, next){
 
-    Request.find(function foundRequests(err, requests){
-      if(err) return next(err);
-      res.view({
-        requests: requests
+  showrequest : function(req, res, next){
+    var bool = false;
+    var requestArray = [];
+
+    User.findOne({
+        id: req.header('id')
+      }, function foundUser(err, user) {
+      if (!user) {
+        return res.status(200).json({
+          success: false,
+
+          message: "Sorry,no user found."
+        })
+      }
+      Request.find({
+        reciever: user.id
+      }, function foundQuiz(err, requests) {
+        if (err) return next(err);
+        if (requests.length > 0) {
+          return res.status(200).json({
+            requests: requests,
+            success: true
+          });
+        }
+        else {
+          return res.status(400).json({
+            message: "No request found",
+            success: true,
+          });
+        }
       });
     });
   },

@@ -37,6 +37,10 @@ module.exports.policies = {
 
   session : {
     checktoken : 'tokenAuth'
+  },
+
+  request : {
+    create : 'tokenAuth'
   }
   /***************************************************************************
   *                                                                          *

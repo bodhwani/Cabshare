@@ -39,10 +39,18 @@ module.exports = {
 
 
   show: function(req, res, next) {
-    User.findOne(req.header('id'), function foundUser(err, user) {
+    User.findOne(req.header('token'), function foundUser(err, user) {
       if (err) return next(err);
-      if (!user) return next();
+      if (!user) {
+        return res.status(401).json({
+          success : false,
+          message : "No user found"
+        });
+      }
+
+
       return res.status(200).json({
+        success : true,
         user : user
       })
     });
@@ -52,10 +60,20 @@ module.exports = {
   showall : function(req, res, next){
 
     User.find(function foundUsers(err, users){
-      if(err) return next(err);
-      res.view({
-        users: users
-      });
+      if(users.length > 0) {
+        if (err) return next(err);
+        return res.status(200).json({
+          success: true,
+          users: users
+        });
+      }
+      else{
+        return res.status(401).json({
+          success: false,
+          message : "No users found"
+        });
+
+      }
     });
   },
 
